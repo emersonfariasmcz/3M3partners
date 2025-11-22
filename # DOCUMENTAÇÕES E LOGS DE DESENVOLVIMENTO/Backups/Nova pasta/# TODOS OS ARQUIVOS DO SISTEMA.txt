@@ -1,0 +1,3112 @@
+<?php
+# ========================================
+# Página de Acesso Negado
+# Local: /app/controllers/acesso_negado.php
+# ========================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$erro_acesso = $_SESSION['erro_acesso'] ?? 'Você não tem permissão para acessar esta funcionalidade.';
+unset($_SESSION['erro_acesso']);
+
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /iga/app/views/login.php');
+    exit;
+}
+
+$usuario_nome = $_SESSION['usuario_nome'] ?? 'Usuário';
+$usuario_papel = $_SESSION['usuario_papel'] ?? 'N/A';
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Negado - Sistema IGA</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-danger text-white text-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-ban me-2"></i>Acesso Negado
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-lock fa-4x text-danger mb-3"></i>
+                            <h5 class="text-danger">Restrição de Acesso</h5>
+                        </div>
+                        
+                        <p class="lead">Olá, <strong><?= htmlspecialchars($usuario_nome) ?></strong>!</p>
+                        <p>Seu perfil atual: <span class="badge bg-secondary"><?= htmlspecialchars($usuario_papel) ?></span></p>
+                        
+                        <div class="alert alert-warning mt-4">
+                            <p class="mb-0"><?= htmlspecialchars($erro_acesso) ?></p>
+                        </div>
+                        
+                        <p class="text-muted mt-3">
+                            Esta funcionalidade está restrita aos administradores do sistema. 
+                            Contacte o administrador para solicitar acesso.
+                        </p>
+                    </div>
+                    
+                    <div class="card-footer bg-light text-center">
+                        <a href="/iga/app/views/dashboard.php" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-1"></i> Voltar ao Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<?php
+# ========================================
+# Controlador de Autenticação
+# Local: /app/controllers/autenticacao.php
+# ========================================
+
+ini_set('display_errors', 1);      // Ativa a exibição de erros
+ini_set('display_startup_errors', 1); // Erros no PHP ao iniciar
+error_reporting(E_ALL);            // Reporta todos os erros possíveis
+
+session_start();
+require_once '../../config/conexao.php';
+//require_once('../../app/controllers/autenticacao.php');
+
+# Verifica se o formulário foi enviado via POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $usuario = trim($_POST['username'] ?? '');
+    $senha   = $_POST['password'] ?? '';
+
+    # Verificação básica
+    if (empty($usuario) || empty($senha)) {
+        $_SESSION['erro_login'] = "Usuário e senha são obrigatórios.";
+        header('Location: ../../app/views/login.php');
+        exit;
+    }
+
+    try {
+        # Consulta ao banco pelo login
+        $sql = "SELECT u.*, p.usuariopapel_nome 
+                FROM usuarios u
+                JOIN usuariopapeis p ON u.papel_id = p.usuariopapel_id
+                WHERE u.usuario_login = :login";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':login', $usuario);
+        $stmt->execute();
+        $dados = $stmt->fetch();
+
+        # Se encontrou o usuário
+        if ($dados && password_verify($senha, $dados['usuario_senha'])) {
+            # Login bem-sucedido
+            $_SESSION['usuario_id']   = $dados['usuario_id'];
+            $_SESSION['usuario_nome'] = $dados['usuario_nome'];
+            $_SESSION['usuario_login'] = $dados['usuario_login'];
+            $_SESSION['usuario_papel'] = $dados['usuariopapel_nome'];
+            $_SESSION['logado_em']     = time();
+
+            header('Location: ../../app/views/dashboard.php');
+            exit;
+        } else {
+            # Login falhou
+            $_SESSION['erro_login'] = "Usuário ou senha inválidos.";
+            header('Location: ../../app/views/login.php');
+            exit;
+        }
+
+    } catch (PDOException $e) {
+        $_SESSION['erro_login'] = "Erro de conexão com o banco.";
+        header('Location: ../../app/views/login.php');
+        exit;
+    }
+} else {
+    # Acesso indevido
+    header('Location: ../../app/views/login.php');
+    exit;
+
+    }
+
+?>
+
+<?php
+# ========================================
+# Controlador de Autenticação
+# Local: /app/controllers/autenticacao.php
+# ========================================
+
+ini_set('display_errors', 1);      // Ativa a exibição de erros
+ini_set('display_startup_errors', 1); // Erros no PHP ao iniciar
+error_reporting(E_ALL);            // Reporta todos os erros possíveis
+
+session_start();
+require_once '../../config/conexao.php';
+//require_once('../../app/controllers/autenticacao.php');
+
+# Verifica se o formulário foi enviado via POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $usuario = trim($_POST['username'] ?? '');
+    $senha   = $_POST['password'] ?? '';
+
+    # Verificação básica
+    if (empty($usuario) || empty($senha)) {
+        $_SESSION['erro_login'] = "Usuário e senha são obrigatórios.";
+        header('Location: ../../app/views/login.php');
+        exit;
+    }
+
+    try {
+        # Consulta ao banco pelo login
+        $sql = "SELECT u.*, p.usuariopapel_nome 
+                FROM usuarios u
+                JOIN usuariopapeis p ON u.papel_id = p.usuariopapel_id
+                WHERE u.usuario_login = :login";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':login', $usuario);
+        $stmt->execute();
+        $dados = $stmt->fetch();
+
+        # Se encontrou o usuário
+        if ($dados && password_verify($senha, $dados['usuario_senha'])) {
+            # Login bem-sucedido
+            $_SESSION['usuario_id']   = $dados['usuario_id'];
+            $_SESSION['usuario_nome'] = $dados['usuario_nome'];
+            $_SESSION['usuario_login'] = $dados['usuario_login'];
+            $_SESSION['usuario_papel'] = $dados['usuariopapel_nome'];
+            $_SESSION['logado_em']     = time();
+
+            header('Location: ../../app/views/dashboard.php');
+            exit;
+        } else {
+            # Login falhou
+            $_SESSION['erro_login'] = "Usuário ou senha inválidos.";
+            header('Location: ../../app/views/login.php');
+            exit;
+        }
+
+    } catch (PDOException $e) {
+        $_SESSION['erro_login'] = "Erro de conexão com o banco.";
+        header('Location: ../../app/views/login.php');
+        exit;
+    }
+} else {
+    # Acesso indevido
+    header('Location: ../../app/views/login.php');
+    exit;
+
+    }
+
+?>
+
+<?php
+# ========================================
+# Conexão com o banco de dados MySQL (PDO)
+# Local: /config/conexao.php
+# ========================================
+
+# Credenciais do banco de dados
+$host = 'localhost';
+$dbname = 'iga_bd';
+$username = 'root';
+$password = '123456';
+
+try {
+    # Instanciando objeto PDO
+    $pdo = new PDO(
+        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,            // Exibe exceções
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Retorna como array associativo
+            PDO::ATTR_EMULATE_PREPARES => false,                    // Desativa prepare emulado (mais seguro)
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"     // Charset padrão
+        ]
+    );
+} catch (PDOException $e) {
+    # Erro na conexão com o banco
+   die("Erro de conexão com o banco de dados: " . $e->getMessage()); 
+}
+
+
+
+?>
+
+<?php
+# ========================================
+# Formulário de Criação de Categoria
+# Local: /app/views/categorias/create.php
+# ========================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /iga/app/views/login.php');
+    exit;
+}
+
+if ($_SESSION['usuario_papel'] !== 'Administrador') {
+    $_SESSION['erro_acesso'] = "Acesso restrito a administradores do sistema.";
+    header('Location: /iga/app/controllers/acesso_negado.php');
+    exit;
+}
+
+$erro = $_SESSION['erro_salvar'] ?? '';
+unset($_SESSION['erro_salvar']);
+
+$sucesso = $_SESSION['sucesso_salvar'] ?? '';
+unset($_SESSION['sucesso_salvar']);
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Categoria - Sistema IGA</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-folder-plus me-2"></i>Nova Categoria
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        <?php if ($erro): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($erro) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($sucesso): ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($sucesso) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <form action="/iga/app/controllers/categoria_controller.php?acao=salvar" method="POST" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <!-- Nome da Categoria -->
+                                <div class="col-md-12">
+                                    <label for="categoria_nome" class="form-label">Nome da Categoria *</label>
+                                    <input type="text" class="form-control" id="categoria_nome" name="categoria_nome" 
+                                           required maxlength="100">
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o nome da categoria.
+                                    </div>
+                                </div>
+                                
+                                <!-- Descrição -->
+                                <div class="col-md-12">
+                                    <label for="categoria_descricao" class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="categoria_descricao" name="categoria_descricao" 
+                                              rows="3" maxlength="500"></textarea>
+                                    <div class="form-text">Opcional - máximo 500 caracteres</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/iga/app/controllers/categoria_controller.php?acao=listar" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Voltar
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-1"></i> Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Validação do formulário
+        (function () {
+            'use strict'
+            
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+</body>
+</html>
+
+<?php
+# ========================================
+# Tela de Cadastro de Novo Usuário
+# Local: /app/views/usuarios/create.php
+# ========================================
+
+// Verificar sessão
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Verificar autenticação e permissões
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /iga/app/views/login.php');
+    exit;
+}
+
+if ($_SESSION['usuario_papel'] !== 'Administrador') {
+    $_SESSION['erro_acesso'] = "Você não tem permissão para acessar esta funcionalidade.";
+    header('Location: /iga/app/views/dashboard.php');
+    exit;
+}
+
+require_once __DIR__ . '/../../../config/conexao.php';
+
+// Buscar papéis disponíveis
+$sql = "SELECT usuariopapel_id, usuariopapel_nome FROM usuariopapeis ORDER BY usuariopapel_nome";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$papeis = $stmt->fetchAll();
+
+// Verificar mensagens de erro/sucesso
+$erro = $_SESSION['erro_salvar'] ?? '';
+unset($_SESSION['erro_salvar']);
+
+$sucesso = $_SESSION['sucesso_salvar'] ?? '';
+unset($_SESSION['sucesso_salvar']);
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Novo Usuário - Sistema IGA</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>Cadastrar Novo Usuário
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        <?php if ($erro): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($erro) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($sucesso): ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($sucesso) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <form action="/iga/app/controllers/usuario_controller.php?acao=salvar" method="POST" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <!-- Nome Completo -->
+                                <div class="col-md-12">
+                                    <label for="usuario_nome" class="form-label">Nome Completo *</label>
+                                    <input type="text" class="form-control" id="usuario_nome" name="usuario_nome" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o nome completo.
+                                    </div>
+                                </div>
+                                
+                                <!-- E-mail -->
+                                <div class="col-md-6">
+                                    <label for="usuario_email" class="form-label">E-mail *</label>
+                                    <input type="email" class="form-control" id="usuario_email" name="usuario_email" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe um e-mail válido.
+                                    </div>
+                                </div>
+                                
+                                <!-- Login -->
+                                <div class="col-md-6">
+                                    <label for="usuario_login" class="form-label">Login *</label>
+                                    <input type="text" class="form-control" id="usuario_login" name="usuario_login" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe um login de acesso.
+                                    </div>
+                                </div>
+                                
+                                <!-- Senha -->
+                                <div class="col-md-6">
+                                    <label for="usuario_senha" class="form-label">Senha *</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="usuario_senha" name="usuario_senha" required minlength="6">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <div class="invalid-feedback">
+                                            A senha deve ter pelo menos 6 caracteres.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Confirmar Senha -->
+                                <div class="col-md-6">
+                                    <label for="confirmar_senha" class="form-label">Confirmar Senha *</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required minlength="6">
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <div class="invalid-feedback">
+                                            As senhas devem ser iguais.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Nível de Acesso -->
+                                <div class="col-md-12">
+                                    <label for="papel_id" class="form-label">Nível de Acesso *</label>
+                                    <select class="form-select" id="papel_id" name="papel_id" required>
+                                        <option value="" selected disabled>Selecione um nível de acesso...</option>
+                                        <?php foreach ($papeis as $papel): ?>
+                                            <option value="<?= htmlspecialchars($papel['usuariopapel_id']) ?>">
+                                                <?= htmlspecialchars($papel['usuariopapel_nome']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Por favor, selecione um nível de acesso.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/iga/app/controllers/usuario_controller.php?acao=listar" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Voltar
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-1"></i> Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Validação do formulário -->
+    <script>
+        // Exemplo de validação do formulário
+        (function () {
+            'use strict'
+            
+            // Selecionar todos os formulários que precisam de validação
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            // Validar cada formulário
+            Array.from(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    // Verificar se as senhas coincidem
+                    const senha = document.getElementById('usuario_senha')
+                    const confirmarSenha = document.getElementById('confirmar_senha')
+                    
+                    if (senha.value !== confirmarSenha.value) {
+                        confirmarSenha.setCustomValidity("As senhas não coincidem")
+                        confirmarSenha.classList.add('is-invalid')
+                        event.preventDefault()
+                        event.stopPropagation()
+                    } else {
+                        confirmarSenha.setCustomValidity("")
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+            
+            // Toggle para mostrar/esconder senha
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const senha = document.getElementById('usuario_senha')
+                const tipo = senha.getAttribute('type') === 'password' ? 'text' : 'password'
+                senha.setAttribute('type', tipo)
+                this.innerHTML = tipo === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>'
+            })
+            
+            // Toggle para mostrar/esconder confirmação de senha
+            document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+                const confirmarSenha = document.getElementById('confirmar_senha')
+                const tipo = confirmarSenha.getAttribute('type') === 'password' ? 'text' : 'password'
+                confirmarSenha.setAttribute('type', tipo)
+                this.innerHTML = tipo === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>'
+            })
+        })()
+    </script>
+</body>
+</html>
+
+<?php
+# ========================================
+# Formulário de Criação de Categoria
+# Local: /app/views/categorias/create.php
+# ========================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /iga/app/views/login.php');
+    exit;
+}
+
+if ($_SESSION['usuario_papel'] !== 'Administrador') {
+    $_SESSION['erro_acesso'] = "Acesso restrito a administradores do sistema.";
+    header('Location: /iga/app/controllers/acesso_negado.php');
+    exit;
+}
+
+$erro = $_SESSION['erro_salvar'] ?? '';
+unset($_SESSION['erro_salvar']);
+
+$sucesso = $_SESSION['sucesso_salvar'] ?? '';
+unset($_SESSION['sucesso_salvar']);
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Categoria - Sistema IGA</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-folder-plus me-2"></i>Nova Categoria
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        <?php if ($erro): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($erro) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($sucesso): ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($sucesso) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <form action="/iga/app/controllers/categoria_controller.php?acao=salvar" method="POST" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <!-- Nome da Categoria -->
+                                <div class="col-md-12">
+                                    <label for="categoria_nome" class="form-label">Nome da Categoria *</label>
+                                    <input type="text" class="form-control" id="categoria_nome" name="categoria_nome" 
+                                           required maxlength="100">
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o nome da categoria.
+                                    </div>
+                                </div>
+                                
+                                <!-- Descrição -->
+                                <div class="col-md-12">
+                                    <label for="categoria_descricao" class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="categoria_descricao" name="categoria_descricao" 
+                                              rows="3" maxlength="500"></textarea>
+                                    <div class="form-text">Opcional - máximo 500 caracteres</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/iga/app/controllers/categoria_controller.php?acao=listar" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Voltar
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-1"></i> Salvar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Validação do formulário
+        (function () {
+            'use strict'
+            
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+</body>
+</html>
+
+<?php
+# ========================================
+# Dashboard (Tela Principal)
+# Local: /app/views/dashboard.php
+# ========================================
+
+session_start();
+if (!isset($_SESSION['usuario_id'])) {
+  header('Location: ../../app/views/login.php');
+  exit;
+}
+$usuario_nome = $_SESSION['usuario_nome'] ?? 'Usuário';
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Sistema IGA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+
+<body>
+  <!-- Top Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <img src="../../assets/img/img_logo.png" alt="Logo IGA" style="width: 140px;">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <!-- Cadastro -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="menuCadastro" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-database"></i> Cadastro
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/iga/app/controllers/produto_controller.php?acao=listar">Produtos</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/categoria_controller.php?acao=listar">Categorias</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/unidade_controller.php?acao=listar">Unidades de Saúde</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/distrito_controller.php?acao=listar">Distritos</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/fornecedor_controller.php?acao=listar">Fornecedores</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/supervisor_controller.php?acao=listar">Supervisores</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/fabricante_controller.php?acao=listar">Fabricantes</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/transportadora_controller.php?acao=listar">Transportadoras</a></li>
+              <!-- Link para CRUD de usuários - SOMENTE PARA ADMINISTRADORES -->
+              <?php if ($_SESSION['usuario_papel'] === 'Administrador'): ?>
+              <li><a class="dropdown-item" href="/iga/app/controllers/usuario_controller.php?acao=listar">
+                <i class="fas fa-users-cog text-success"></i> Usuários
+              </a></li>
+              <?php endif; ?>
+            </ul>
+          </li>
+
+          <!-- Movimentação -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="menuMov" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-exchange-alt"></i> Movimentação
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/iga/app/controllers/entrada_controller.php?acao=listar">Entrada de Produtos</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/requisicao_controller.php?acao=listar">Requisições de Saída</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/ajuste_controller.php?acao=listar">Acerto de Estoque</a></li>
+            </ul>
+          </li>
+
+          <!-- Relatórios -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="menuRel" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-chart-bar"></i> Relatórios
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=produtos">Produtos</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=unidades">Unidades de Saúde</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=fornecedores">Fornecedores</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=supervisores">Supervisores</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=requisicoes">Requisições de Saída</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=inventario">Inventário</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=kardex">Kardex</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=custos">Custos</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/relatorio_controller.php?tipo=curva-abc">Curva ABC</a></li>
+            </ul>
+          </li>
+
+          <!-- Configurações -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="menuConfig" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-cogs"></i> Configurações
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/iga/app/controllers/configuracao_controller.php?acao=geral">Gerais</a></li>
+              <li><a class="dropdown-item" href="/iga/app/controllers/configuracao_controller.php?acao=niveis">Níveis de Usuário</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <span class="nav-link text-dark">Olá, <?= htmlspecialchars($usuario_nome); ?></span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="/iga/app/controllers/logout.php">Sair</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="container mt-4">
+    <h3 class="mb-4">Bem-vindo, <?= htmlspecialchars($usuario_nome); ?>!</h3>
+
+    <!-- CARDS DE INDICADORES -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-3">
+        <div class="card text-white" style="background-color: #0b9960;">
+          <div class="card-body">
+            <h5 class="card-title">Produtos</h5>
+            <p class="card-text fs-4">120</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-white" style="background-color: #6cd4ac;">
+          <div class="card-body">
+            <h5 class="card-title">Estoque Total</h5>
+            <p class="card-text fs-4">1.985</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-white" style="background-color: #073725;">
+          <div class="card-body">
+            <h5 class="card-title">Entradas (mês)</h5>
+            <p class="card-text fs-4">43</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-white" style="background-color: #cbd9d3;">
+          <div class="card-body">
+            <h5 class="card-title text-dark">Saídas (mês)</h5>
+            <p class="card-text text-dark fs-4">28</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABELA DE PRODUTOS E ESTOQUE ATUAL -->
+    <div class="card">
+      <div class="card-header" style="background-color: #0b9960; color: white;">
+        Produtos em Estoque
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Apresentação</th>
+                <th>Marca</th>
+                <th>Estoque Atual</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dipirona Sódica 500mg</td>
+                <td>Medicamento</td>
+                <td>Comprimido</td>
+                <td>Neo Química</td>
+                <td>240</td>
+              </tr>
+              <tr>
+                <td>Soro Fisiológico 0,9%</td>
+                <td>Injetáveis</td>
+                <td>Frasco 500ml</td>
+                <td>JP Farma</td>
+                <td>320</td>
+              </tr>
+              <tr>
+                <td>Paracetamol 750mg</td>
+                <td>Medicamento</td>
+                <td>Comprimido</td>
+                <td>EMS</td>
+                <td>180</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center mt-5 py-4 border-top">
+    <strong>&copy; <?= date('Y'); ?> Sistema de Controle de Estoque IGA</strong>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<?php
+# Local: /app/views/usuarios/delete.php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    die("ID de usuário inválido.");
+}
+
+$usuario_id = (int)$_GET['id'];
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Excluir Usuário - Sistema IGA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Confirmar Exclusão</h4>
+    <p>Você tem certeza que deseja excluir o usuário de ID #<?= htmlspecialchars($usuario_id) ?>?</p>
+    <hr>
+    <p class="mb-0">Essa ação é irreversível.</p>
+  </div>
+  <form action="../../app/controllers/usuario_controller.php?acao=excluir" method="POST">
+    <input type="hidden" name="usuario_id" value="<?= htmlspecialchars($usuario_id) ?>">
+    <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+    <a href="../../app/controllers/usuario_controller.php?acao=listar" class="btn btn-secondary">Não, Voltar</a>
+  </form>
+</div>
+</body>
+</html>
+
+<?php
+# ========================================
+# Formulário de Edição de Categoria
+# Local: /app/views/categorias/edit.php
+# ========================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /iga/app/views/login.php');
+    exit;
+}
+
+if ($_SESSION['usuario_papel'] !== 'Administrador') {
+    $_SESSION['erro_acesso'] = "Acesso restrito a administradores do sistema.";
+    header('Location: /iga/app/controllers/acesso_negado.php');
+    exit;
+}
+
+$erro = $_SESSION['erro_salvar'] ?? '';
+unset($_SESSION['erro_salvar']);
+
+if (!isset($categoria)) {
+    $_SESSION['erro_salvar'] = "Categoria não encontrada.";
+    header('Location: /iga/app/controllers/categoria_controller.php?acao=listar');
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Categoria - Sistema IGA</title>
+    
+    <link href="极速cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-edit me-2"></i>Editar Categoria
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        <?php if ($erro): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($erro) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <form action="/iga/app/controllers/categoria_controller.php?acao=salvar" method="POST" class="needs-validation" novalidate>
+                            <input type="hidden" name="categoria_id" value="<?= htmlspecialchars($categoria['categoria_id']) ?>">
+
+                            <div class="row g-3">
+                                <!-- Nome da Categoria -->
+                                <div class="col-md-12">
+                                    <label for="categoria_nome" class="form-label">Nome da Categoria *</label>
+                                    <input type="text" class="form-control" id="categoria_nome" name="categoria_nome" 
+                                           value="<?= htmlspecialchars($categoria['categoria_nome']) ?>" required maxlength="100">
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o nome da categoria.
+                                    </div>
+                                </div>
+                                
+                                <!-- Descrição -->
+                                <div class="col-md-12">
+                                    <label for="categoria_descricao" class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="categoria_descricao" name="categoria_descricao" 
+                                              rows="3" maxlength="500"><?= htmlspecialchars($categoria['categoria_descricao'] ?? '') ?></textarea>
+                                    <div class="form-text">Opcional - máximo 500 caracteres</div>
+                                </div>
+                                
+                                <!-- Status -->
+                                <div class="col-md-12">
+                                    <label for="categoria_status" class="form-label">Status *</label>
+                                    <select class="form-select" id="categoria_status" name="categoria_status" required>
+                                        <option value="ativo" <?= $categoria['categoria_status'] === 'ativo' ? 'selected' : '' ?>>Ativo</option>
+                                        <option value="inativo" <?= $categoria['categoria_status'] === 'inativo' ? 'selected' : '' ?>>Inativo</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Por favor, selecione o status.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/iga/app/controllers/categoria_controller.php?acao=listar" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Voltar
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-1"></i> Atualizar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Validação do formulário
+        (function () {
+            'use strict'
+            
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+</body>
+</html>
+
+<?php
+# ========================================
+# Visualização de Edição de Usuário
+# Local: /app/views/usuarios/edit.php
+# ========================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Verificar autenticação e permissões
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /iga/app/views/login.php');
+    exit;
+}
+
+if ($_SESSION['usuario_papel'] !== 'Administrador') {
+    $_SESSION['erro_acesso'] = "Você não tem permissão para acessar esta funcionalidade.";
+    header('Location: /iga/app/views/dashboard.php');
+    exit;
+}
+
+$erro = $_SESSION['erro_salvar'] ?? '';
+unset($_SESSION['erro_salvar']);
+
+// As variáveis $usuario e $papeis são carregadas pelo controller
+if (!isset($usuario) || !isset($papeis)) {
+    $_SESSION['erro_salvar'] = "Erro ao carregar dados do usuário.";
+    header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuário - Sistema IGA</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-edit me-2"></i>Editar Usuário
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        <?php if ($erro): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <?= htmlspecialchars($erro) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <form action="/iga/app/controllers/usuario_controller.php?acao=salvar" method="POST" class="needs-validation" novalidate>
+                            <input type="hidden" name="usuario_id" value="<?= htmlspecialchars($usuario['usuario_id']) ?>">
+
+                            <div class="row g-3">
+                                <!-- Nome Completo -->
+                                <div class="col-md-12">
+                                    <label for="usuario_nome" class="form-label">Nome Completo *</label>
+                                    <input type="text" class="form-control" id="usuario_nome" name="usuario_nome" 
+                                           value="<?= htmlspecialchars($usuario['usuario_nome']) ?>" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe o nome completo.
+                                    </div>
+                                </div>
+                                
+                                <!-- E-mail -->
+                                <div class="col-md-6">
+                                    <label for="usuario_email" class="form-label">E-mail *</label>
+                                    <input type="email" class="form-control" id="usuario_email" name="usuario_email" 
+                                           value="<?= htmlspecialchars($usuario['usuario_email']) ?>" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe um e-mail válido.
+                                    </div>
+                                </div>
+                                
+                                <!-- Login -->
+                                <div class="col-md-6">
+                                    <label for="usuario_login" class="form-label">Login *</label>
+                                    <input type="text" class="form-control" id="usuario_login" name="usuario_login" 
+                                           value="<?= htmlspecialchars($usuario['usuario_login']) ?>" required>
+                                    <div class="invalid-feedback">
+                                        Por favor, informe um login de acesso.
+                                    </div>
+                                </div>
+                                
+                                <!-- Senha -->
+                                <div class="col-md-6">
+                                    <label for="usuario_senha" class="form-label">Nova Senha (deixe em branco para manter a atual)</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="usuario_senha" name="usuario_senha" 
+                                               placeholder="Digite apenas se desejar alterar" minlength="6">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Confirmar Senha -->
+                                <div class="col-md-6">
+                                    <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" 
+                                               placeholder="Confirme a nova senha" minlength="6">
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Nível de Acesso -->
+                                <div class="col-md-12">
+                                    <label for="papel_id" class="form-label">Nível de Acesso *</label>
+                                    <select class="form-select" id="papel_id" name="papel_id" required>
+                                        <option value="" disabled>Selecione um nível de acesso...</option>
+                                        <?php foreach ($papeis as $papel): ?>
+                                            <option value="<?= htmlspecialchars($papel['usuariopapel_id']) ?>" 
+                                                <?= $papel['usuariopapel_id'] == $usuario['papel_id'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($papel['usuariopapel_nome']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Por favor, selecione um nível de acesso.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/iga/app/controllers/usuario_controller.php?acao=listar" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Voltar
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-1"></i> Atualizar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Validação do formulário -->
+    <script>
+        (function () {
+            'use strict'
+            
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    // Verificar se as senhas coincidem (apenas se alguma senha foi preenchida)
+                    const senha = document.getElementById('usuario_senha')
+                    const confirmarSenha = document.getElementById('confirmar_senha')
+                    
+                    if (senha.value || confirmarSenha.value) {
+                        if (senha.value !== confirmarSenha.value) {
+                            confirmarSenha.setCustomValidity("As senhas não coincidem")
+                            confirmarSenha.classList.add('is-invalid')
+                            event.preventDefault()
+                            event.stopPropagation()
+                        } else {
+                            confirmarSenha.setCustomValidity("")
+                        }
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+            
+            // Toggle para mostrar/esconder senha
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const senha = document.getElementById('usuario_senha')
+                const tipo = senha.getAttribute('type') === 'password' ? 'text' : 'password'
+                senha.setAttribute('type', tipo)
+                this.innerHTML = tipo === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>'
+            })
+            
+            // Toggle para mostrar/esconder confirmação de senha
+            document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+                const confirmarSenha = document.getElementById('confirmar_senha')
+                const tipo = confirmarSenha.getAttribute('type') === 'password' ? 'text' : 'password'
+                confirmarSenha.setAttribute('type', tipo)
+                this.innerHTML = tipo === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>'
+            })
+        })()
+    </script>
+</body>
+</html>
+
+<?php
+# ========================================
+# Formulário de Cadastro / Edição de Usuário
+# Local: /app/views/usuarios/form.php
+# ========================================
+
+$edicao = isset($usuario);
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title><?= $edicao ? 'Editar' : 'Novo' ?> Usuário</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+  <div class="container mt-5">
+    <h2 class="mb-4 text-success"><?= $edicao ? 'Editar Usuário' : 'Novo Usuário' ?></h2>
+
+    <form action="../../app/controllers/usuario_controller.php?acao=salvar" method="POST" class="row g-3">
+
+      <?php if ($edicao): ?>
+        <input type="hidden" name="usuario_id" value="<?= $usuario['usuario_id'] ?>">
+      <?php endif; ?>
+
+      <div class="col-md-6">
+        <label for="usuario_nome" class="form-label">Nome Completo</label>
+        <input type="text" class="form-control" name="usuario_nome" id="usuario_nome" required
+               value="<?= $edicao ? htmlspecialchars($usuario['usuario_nome']) : '' ?>">
+      </div>
+
+      <div class="col-md-6">
+        <label for="usuario_email" class="form-label">Email</label>
+        <input type="email" class="form-control" name="usuario_email" id="usuario_email"
+               value="<?= $edicao ? htmlspecialchars($usuario['usuario_email']) : '' ?>">
+      </div>
+
+      <div class="col-md-4">
+        <label for="usuario_login" class="form-label">Login</label>
+        <input type="text" class="form-control" name="usuario_login" id="usuario_login" required
+               value="<?= $edicao ? htmlspecialchars($usuario['usuario_login']) : '' ?>">
+      </div>
+
+      <div class="col-md-4">
+        <label for="usuario_senha" class="form-label">Senha <?= $edicao ? '(Deixe em branco para manter)' : '' ?></label>
+        <input type="password" class="form-control" name="usuario_senha" id="usuario_senha" <?= $edicao ? '' : 'required' ?>>
+      </div>
+
+      <div class="col-md-4">
+        <label for="papel_id" class="form-label">Nível de Acesso</label>
+        <select name="papel_id" id="papel_id" class="form-select" required>
+          <option value="">Selecione...</option>
+          <?php foreach ($papeis as $papel): ?>
+            <option value="<?= $papel['usuariopapel_id'] ?>"
+              <?= ($edicao && $usuario['papel_id'] == $papel['usuariopapel_id']) ? 'selected' : '' ?>>
+              <?= htmlspecialchars($papel['usuariopapel_nome']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div class="col-12 d-flex justify-content-between mt-4">
+        <a href="../../app/controllers/usuario_controller.php?acao=listar" class="btn btn-secondary">Voltar</a>
+        <button type="submit" class="btn btn-success">Salvar</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>
+
+<?php
+# ========================================
+# Visualização de Categorias (Listagem)
+# Local: /app/views/categorias/index.php
+# ========================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$sucesso = $_SESSION['sucesso_salvar'] ?? $_SESSION['sucesso_excluir'] ?? '';
+$erro    = $_SESSION['erro_salvar']    ?? $_SESSION['erro_excluir']   ?? '';
+
+unset($_SESSION['sucesso_salvar'], $_SESSION['sucesso_excluir']);
+unset($_SESSION['erro_salvar'], $_SESSION['erro_excluir']);
+
+if (!isset($categorias)) {
+    header('Location: ../../app/controllers/categoria_controller.php?acao=listar');
+    exit;
+}
+
+$total_categorias = count($categorias);
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorias - Sistema IGA</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Categorias</h2>
+            <div class="d-flex gap-2">
+                <a href="/iga/app/views/dashboard.php" class="btn btn-custom-back">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                <a href="/iga/app/views/categorias/create.php" class="btn btn-custom-add">
+                    <i class="fas fa-plus"></i> Nova Categoria
+                </a>
+            </div>
+        </div>
+        
+        <?php if ($sucesso): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= $sucesso ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($erro): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $erro ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <div class="card card-custom">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Criado em</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($total_categorias > 0): ?>
+                                <?php foreach ($categorias as $categoria): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($categoria['categoria_id']) ?></td>
+                                        <td><?= htmlspecialchars($categoria['categoria_nome']) ?></td>
+                                        <td><?= !empty($categoria['categoria_descricao']) ? htmlspecialchars($categoria['categoria_descricao']) : 'N/A' ?></td>
+                                        <td><?= !empty($categoria['categoria_criadoem']) ? date('d/m/Y H:i', strtotime($categoria['categoria_criadoem'])) : 'N/A' ?></td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a href="/iga/app/controllers/categoria_controller.php?acao=editar&id=<?= htmlspecialchars($categoria['categoria_id']) ?>" class="btn btn-custom-edit btn-sm" title="Editar categoria">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="/iga/app/controllers/categoria_controller.php?acao=excluir" method="POST" class="d-inline" onsubmit="return confirm('Deseja realmente excluir esta categoria?');">
+                                                    <input type="hidden" name="categoria_id" value="<?= htmlspecialchars($categoria['categoria_id']) ?>">
+                                                    <button type="submit" class="btn btn-custom-delete btn-sm" title="Excluir categoria">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center">Nenhuma categoria encontrada.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="total-users mt-3">
+            Total de categorias: <strong><?= htmlspecialchars($total_categorias) ?></strong>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<?php
+# Redirecionamento para a tela de login
+header("Location: ../app/views/login.php");
+exit();
+?>
+
+<?php
+# ========================================
+# Visualização de Usuários (Tabela de Listagem)
+# Local: /app/views/usuarios/index.php
+# ========================================
+
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$sucesso = $_SESSION['sucesso_salvar'] ?? $_SESSION['sucesso_excluir'] ?? '';
+$erro    = $_SESSION['erro_salvar']    ?? $_SESSION['erro_excluir']   ?? '';
+
+unset($_SESSION['sucesso_salvar'], $_SESSION['sucesso_excluir']);
+unset($_SESSION['erro_salvar'], $_SESSION['erro_excluir']);
+
+// As variáveis $usuarios são carregadas pelo controller
+if (!isset($usuarios)) {
+    header('Location: ../../app/controllers/usuario_controller.php?acao=listar');
+    exit;
+}
+
+$total_usuarios = count($usuarios);
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Usuários - Sistema IGA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <!-- CSS Personalizado -->
+  <link rel="stylesheet" href="/iga/assets/css/style.css">
+</head>
+<body>
+  <div class="container mt-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Usuários</h2>
+      <div class="d-flex gap-2">
+        <a href="/iga/app/views/dashboard.php" class="btn btn-custom-back">
+          <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+        <a href="/iga/app/views/usuarios/create.php" class="btn btn-custom-add">
+          <i class="fas fa-plus"></i> Adicionar Novo
+        </a>
+      </div>
+    </div>
+    
+    <?php if ($sucesso): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?= $sucesso ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($erro): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?= $erro ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <div class="card card-custom">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Login</th>
+                <th>Perfil</th>
+                <th class="text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if ($total_usuarios > 0): ?>
+                  <?php foreach ($usuarios as $usuario): ?>
+                    <tr>
+                      <td><?= htmlspecialchars($usuario['usuario_id']) ?></td>
+                      <td><?= htmlspecialchars($usuario['usuario_nome']) ?></td>
+                      <td><?= htmlspecialchars($usuario['usuario_email']) ?></td>
+                      <td><?= htmlspecialchars($usuario['usuario_login']) ?></td>
+                      <td><?= htmlspecialchars($usuario['usuariopapel_nome']) ?></td>
+                      <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                          <a href="/iga/app/controllers/usuario_controller.php?acao=editar&id=<?= htmlspecialchars($usuario['usuario_id']) ?>" class="btn btn-custom-edit btn-sm" title="Editar usuário">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <form action="/iga/app/controllers/usuario_controller.php?acao=excluir" method="POST" class="d-inline" onsubmit="return confirm('Deseja realmente excluir este usuário?');">
+                              <input type="hidden" name="usuario_id" value="<?= htmlspecialchars($usuario['usuario_id']) ?>">
+                              <button type="submit" class="btn btn-custom-delete btn-sm" title="Excluir usuário">
+                                  <i class="fas fa-trash-alt"></i>
+                              </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+              <?php else: ?>
+                  <tr>
+                      <td colspan="6" class="text-center">Nenhum usuário encontrado.</td>
+                  </tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="total-users mt-3">
+        Total de usuários: <strong><?= htmlspecialchars($total_usuarios) ?></strong>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<?php
+session_start();
+?>
+
+<!-- Página de Login - login.php -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IGA - Controle de Estoque</title>
+
+  <!-- CSS externo com as cores da identidade visual -->
+  <link rel="stylesheet" href="../../assets/css/style.css">
+
+  <!-- Ícones FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+<body>
+  <!-- Container principal -->
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <!-- Logo -->
+        <img src="../../assets/img/img_logo.png" alt="Logo do Sistema" class="login-logo" />
+        <!--<h1 class="login-title">Acesso ao Sistema</h1>-->
+      </div>
+
+<!-- Formulário de login -->
+
+<?php if (isset($_SESSION['erro_login'])): ?>
+  <div style="color: red; text-align: center; margin-bottom: 15px;">
+    <?= $_SESSION['erro_login']; unset($_SESSION['erro_login']); ?>
+  </div>
+<?php endif; ?>
+
+<!--<form method="POST" action="/iga/app/controllers/autenticacao.php" class="login-form">-->
+<form method="POST" action="../../app/controllers/autenticacao.php" class="login-form">
+<label for="username">Usuário</label>
+  <div class="input-group">
+    <i class="fas fa-user"></i>
+    <input type="text" name="username" id="username" required />
+  </div>
+
+  <label for="password">Senha</label>
+  <div class="input-group">
+    <i class="fas fa-lock"></i>
+    <input type="password" name="password" id="password" required />
+  </div>
+
+  <button type="submit" class="btn-primary">Entrar</button>
+
+  <p class="recovery-link">
+ <!-- <a href="/iga/app/views/recuperar_senha.php">Esqueceu sua senha?</a>-->
+ <a href="../../app/views/recuperar_senha.php">Esqueceu sua senha?</a>
+
+  </p>
+</form>
+
+
+    </div>
+  </div>
+</body>
+</html>
+
+<?php
+# =======================================
+# Encerramento de sessão (logout seguro)
+# Local: /app/controllers/logout.php
+# =======================================
+
+session_start();         // Inicia sessão (caso ainda não esteja)
+session_unset();         // Remove todas as variáveis da sessão
+session_destroy();       // Destroi a sessão completamente
+
+# Redireciona para a tela de login
+header('Location: ../../app/views/login.php');
+exit;
+
+<!-- Tela de Recuperação de Senha - recuperar_senha.php -->
+<?php session_start(); ?>
+<!-- Tela de Recuperação de Senha - recuperar_senha.php -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recuperar Senha - Sistema IGA</title>
+
+  <!-- Estilos globais -->
+  <link rel="stylesheet" href="/iga/assets/css/style.css">
+
+  <!-- FontAwesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+  <!-- Container principal -->
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <!-- Logo -->
+        <img src="/iga/assets/img/img_logo.png" alt="Logo do Sistema" class="login-logo" />
+      </div>
+
+      <!-- Mensagem de feedback -->
+      <?php if (isset($_SESSION['recuperar_msg'])): ?>
+        <div class="alert alert-info" style="color: green; text-align: center;">
+          <?= $_SESSION['recuperar_msg']; unset($_SESSION['recuperar_msg']); ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- Formulário de recuperação -->
+      <form method="POST" action="/iga/app/controllers/recuperar_senha_handler.php" class="login-form">
+        <label for="email">Informe seu e-mail:</label>
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" id="email" required placeholder="email@exemplo.com">
+        </div>
+
+        <button type="submit" class="btn-primary">Enviar Link de Recuperação</button>
+
+        <p class="recovery-link">
+          <a href="/iga/app/views/login.php">Voltar para o login</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>
+
+<?php
+# ========================================
+# Envio do link de recuperação por e-mail
+# Local: /app/controllers/recuperar_senha_handler.php
+# ========================================
+
+session_start();
+require_once '../../config/conexao.php';
+
+// PHPMailer - Carregar o autoloader do composer  
+require_once '../../vendor/autoload.php'; 
+
+// PHPMailer - Importar as classes
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+
+# Verifica o envio por POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
+
+    if (empty($email)) {
+        $_SESSION['erro_login'] = 'Informe um e-mail válido.';
+        header('Location: ../../app/views/recuperar_senha.php');
+        exit;
+    }
+
+    # Verifica se existe o e-mail no sistema
+    $sql = "SELECT * FROM usuarios WHERE usuario_email = :email";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    $usuario = $stmt->fetch();
+
+    if ($usuario) {
+        # Gera token e salva na base
+        $token = bin2hex(random_bytes(32));
+        $expira_em = date('Y-m-d H:i:s', time() + 1800); // 30 minutos
+
+        $insert = $pdo->prepare("INSERT INTO tokens_recuperacao (usuario_id, token, expiracao) VALUES (?, ?, ?)");
+        $insert->execute([$usuario['usuario_id'], $token, $expira_em]);
+
+        # Link de recuperação
+        $link = "http://localhost/iga/app/views/redefinir_senha.php?token=$token";
+
+        # Enviar e-mail com PHPMailer
+        // Instância da classe
+        $mail = new PHPMailer(true);
+        try {
+            // Configurações do servidor
+            $mail->isSMTP(); //Devine o uso de SMTP no envio
+            $mail->Host       = 'smtp.gmail.com'; // Informações específicadas pelo Google
+            $mail->SMTPAuth   = true; //Habilita a autenticação SMTP
+            $mail->Username   = 'seuemail@gmail.com'; // Altere aqui
+            $mail->Password   = 'sua-senha-app';       // Senha de app do Gmail
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587; // Informações específicadas pelo Google 
+            // Define o remetente
+            $mail->setFrom('seuemail@gmail.com', 'Sistema de Estoque');
+            // Define o destinatário            
+            $mail->addAddress($email);
+            // Conteúdo da mensagem 
+            $mail->isHTML(true); // Seta o formato do e-mail para aceitar conteúdo HTML
+            $mail->Subject = 'Recuperação de Senha - Sistema de Estoque'; // Asunto do e-mail
+            $mail->Body    = "<p>Olá <strong>{$usuario['usuario_nome']}</strong>,</p>
+                              <p>Você solicitou a recuperação de senha. Clique no link abaixo para redefinir:</p>
+                              <p><a href='$link'>$link</a></p>
+                              <p>Este link expirará em 30 minutos.</p>";
+
+            $mail->send(); // Enviar
+            $_SESSION['sucesso'] = 'Link enviado para o seu e-mail!';
+        } catch (Exception $e) {
+            $_SESSION['erro_login'] = 'Erro ao enviar e-mail: ' . $mail->ErrorInfo;
+        }
+    } else {
+        # Mesmo retorno, independente de existir ou não o e-mail (segurança)
+        $_SESSION['sucesso'] = 'Se o e-mail existir, você receberá um link.';
+    }
+
+    header('Location: ../../app/views/recuperar_senha.php');
+    exit;
+}
+
+<?php
+session_start();
+$token = $_GET['token'] ?? '';
+
+// Se o token estiver vazio, redireciona por segurança
+if (empty($token)) {
+    $_SESSION['erro_login'] = 'Token inválido ou expirado.';
+    header('Location: ../../app/views/login.php');
+    exit;
+}
+?>
+<!-- Tela de Redefinição de Senha - redefinir_senha.php -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redefinir Senha - Sistema IGA</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../../assets/css/style.css">
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <img src="/iga/assets/img/img_logo.png" alt="Logo do Sistema" class="login-logo" />
+      </div>
+
+      <!-- Mensagem de erro ou sucesso -->
+      <?php if (isset($_SESSION['redefinir_erro'])): ?>
+        <div class="alert alert-danger text-center" style="color: red;">
+          <?= $_SESSION['redefinir_erro']; unset($_SESSION['redefinir_erro']); ?>
+        </div>
+      <?php elseif (isset($_SESSION['redefinir_sucesso'])): ?>
+        <div class="alert alert-success text-center" style="color: green;">
+          <?= $_SESSION['redefinir_sucesso']; unset($_SESSION['redefinir_sucesso']); ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- Formulário de redefinição -->
+      <form method="POST" action="/iga/app/controllers/redefinir_senha_handler.php" class="login-form">
+        <input type="hidden" name="token" value="<?= htmlspecialchars($token); ?>">
+
+        <label for="nova_senha">Nova Senha:</label>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="nova_senha" id="nova_senha" required placeholder="Nova senha">
+        </div>
+
+        <label for="confirmar_senha">Confirmar Senha:</label>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="confirmar_senha" id="confirmar_senha" required placeholder="Repita a nova senha">
+        </div>
+
+        <button type="submit" class="btn-primary">Redefinir Senha</button>
+
+        <p class="recovery-link">
+          <a href="/iga/app/views/login.php">Voltar para o login</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
+
+<?php
+# ============================================
+# Arquivo: salvar.php
+# Finalidade: Processa o cadastro de novos usuários
+# ============================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../../config/conexao.php';
+
+// Função para redirecionamento com mensagem de erro
+function redirecionar_erro($mensagem) {
+    $_SESSION['erro_usuario'] = $mensagem;
+    header("Location: ../app/views/usuarios/create.php");
+    exit;
+}
+
+
+
+// Verifica se os campos obrigatórios foram preenchidos
+if (
+    empty($_POST['usuario_nome']) ||
+    empty($_POST['usuario_email']) ||
+    empty($_POST['usuario_senha']) ||
+    empty($_POST['usuario_papel_id'])
+) {
+    redirecionar_erro("Por favor, preencha todos os campos.");
+}
+
+$nome = trim($_POST['usuario_nome']);
+$email = trim($_POST['usuario_email']);
+$senha = $_POST['usuario_senha'];
+$papel_id = intval($_POST['usuario_papel_id']);
+
+// Verifica se o e-mail já está cadastrado
+$sql = "SELECT COUNT(*) FROM usuarios WHERE usuario_email = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$email]);
+if ($stmt->fetchColumn() > 0) {
+    redirecionar_erro("Este e-mail já está cadastrado.");
+}
+
+// Gera o hash da senha
+$senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+
+// Inserção do novo usuário
+$sql = "INSERT INTO usuarios (usuario_nome, usuario_email, usuario_senha, usuario_papel_id, usuario_data_cadastro) 
+        VALUES (?, ?, ?, ?, NOW())";
+$stmt = $pdo->prepare($sql);
+
+try {
+    $stmt->execute([$nome, $email, $senha_hash, $papel_id]);
+    $_SESSION['sucesso_usuario'] = "Usuário cadastrado com sucesso!";
+    header("Location: ../app/views/usuarios/index.php");
+    exit;
+} catch (PDOException $e) {
+    redirecionar_erro("Erro ao cadastrar usuário: " . $e->getMessage());
+}
+
+/*
+ * ========================================
+ * Estilos da Aplicação - Versão Completa
+ * Local: /assets/css/style.css
+ * ========================================
+ */
+
+/* =====================================
+    Paleta de Cores e Variáveis Globais
+====================================== */
+:root {
+  --verde-principal: #0b9960;
+  --verde-escuro: #073725;
+  --verde-claro: #6cd4ac;
+  --cinza: #cbd9d3;
+  --branco: #ffffff;
+}
+
+/* ===============================
+    Estilos Globais e Padrões
+================================ */
+body {
+  background-color: var(--branco);
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.btn-primary {
+  background-color: var(--verde-principal);
+  color: var(--branco);
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--verde-escuro);
+}
+
+.btn-outline-primary {
+  color: var(--verde-principal);
+  background-color: transparent;
+  border: 1px solid var(--verde-principal);
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--verde-principal);
+  color: var(--branco);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--cinza);
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  background-color: transparent;
+  padding: 10px;
+}
+
+.input-group button {
+    border: none;
+    background-color: transparent;
+    padding: 10px;
+    color: var(--verde-principal);
+}
+
+/* ===============================
+    Estilos para a tela de login - login.php
+================================ */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.login-card {
+  background-color: var(--branco);
+  border: 1px solid var(--cinza);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 40px 30px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-logo {
+  width: 180px;
+  height: auto;
+}
+
+.login-title {
+  color: var(--verde-principal);
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  font-size: 14px;
+  color: #333;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.recovery-link {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.recovery-link a {
+  font-size: 13px;
+  color: var(--verde-principal);
+  text-decoration: none;
+}
+
+.recovery-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+    Estilos para a tela de recuperação
+================================ */
+.recover-form {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 40px;
+  background-color: var(--branco);
+  border: 1px solid var(--cinza);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.recover-form h2 {
+  color: var(--verde-principal);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.recover-form label {
+  font-size: 14px;
+  color: #333;
+  margin-top: 10px;
+  display: block;
+}
+
+.recover-form input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--cinza);
+  border-radius: 6px;
+  margin-top: 5px;
+}
+
+.recover-form button {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.recover-form p {
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ===============================
+    Estilos para Dashboard - dashboard.php
+================================ */
+.navbar {
+  background-color: var(--branco);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.navbar .nav-link {
+  color: #333;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: var(--verde-principal);
+}
+
+.dropdown-menu {
+  border-radius: 8px;
+  border: 1px solid var(--cinza);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item:hover {
+  background-color: var(--verde-claro);
+  color: white;
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card .card-title {
+  font-weight: bold;
+}
+
+.card .card-body {
+  padding: 20px;
+}
+
+.card-header {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+/* ===============================
+    Estilos para CRUD de Usuários
+================================ */
+.btn-custom-back {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-back:hover {
+  background-color: #5a6268;
+  color: white;
+}
+
+.btn-custom-add {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-add:hover {
+  background-color: #218838;
+  color: white;
+}
+
+.btn-custom-edit {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-edit:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.btn-custom-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-delete:hover {
+  background-color: #c82333;
+  color: white;
+}
+
+.card-custom {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.table-responsive {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f2f2f2;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* Título da Tabela com fundo verde */
+.table-title-bar th {
+  background-color: var(--verde-principal);
+  color: var(--branco);
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 8px 8px 0 0;
+}
+
+.total-users {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  padding-left: 10px;
+}
+
+/* ===============================
+    Estilos de Formulário (Geral)
+================================ */
+.form-control:focus {
+  border-color: var(--verde-principal);
+  box-shadow: 0 0 0 0.25rem rgba(0, 135, 68, 0.25);
+}
+
+/* ===============================
+    Estilos para o CRUD de Usuários (Novos)
+================================ */
+
+/* Cards de formulário */
+.card-form {
+    border-radius: 8px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.card-form .card-header {
+    border-radius: 8px 8px 0 0 !important;
+    font-weight: 600;
+    padding: 1.25rem 1.5rem;
+    background-color: var(--verde-principal);
+    color: white;
+}
+
+/* Botões com ícones */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon i {
+    margin-right: 0.5rem;
+}
+
+/* Validação de formulário */
+.was-validated .form-control:valid,
+.form-control.is-valid {
+    border-color: #28a745;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Toggle de senha */
+.input-group-text.toggle-password {
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border-left: none;
+    transition: background-color 0.2s;
+}
+
+.input-group-text.toggle-password:hover {
+    background-color: #e9ecef;
+}
+
+/* Mensagens de alerta */
+.alert-position {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    min-width: 350px;
+}
+
+/* Cards de confirmação */
+.confirmation-card {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.confirmation-card .card-header {
+    background-color: #dc3545;
+}
+
+.confirmation-card .card-body {
+    padding: 2rem;
+}
+
+.confirmation-card .card-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+/* ===============================
+    Responsividade (Mobile)
+================================ */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 30px 20px;
+        margin: 0 15px;
+    }
+
+    .recover-form {
+        margin: 40px 10px;
+        padding: 30px;
+    }
+    
+    .card-form {
+        border-radius: 0;
+        box-shadow: none;
+        margin-bottom: 0;
+    }
+    
+    .card-form .card-header {
+        border-radius: 0 !important;
+    }
+    
+    .confirmation-card {
+        margin: 0;
+        border-radius: 0;
+    }
+    
+    .table-responsive {
+        border: none;
+    }
+    
+    /* Ajustes para botões em dispositivos móveis */
+    .btn-custom-back,
+    .btn-custom-add {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+/* ===============================
+    Animações e Transições
+================================ */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* ===============================
+    Utilitários
+================================ */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.rounded-top-0 {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.min-h-100 {
+    min-height: 100vh;
+}
+
+/* ===============================
+    Estilos para ícones
+================================ */
+.icon-lg {
+    font-size: 1.5rem;
+}
+
+.icon-xl {
+    font-size: 2rem;
+}
+
+.icon-xxl {
+    font-size: 3rem;
+}
+
+.text-success-light {
+    color: var(--verde-claro);
+}
+
+.bg-success-light {
+    background-color: var(--verde-claro);
+}
+
+/* ===============================
+    Estilos para tabelas avançadas
+================================ */
+.table-actions {
+    width: 120px;
+    text-align: center;
+}
+
+.table-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* ===============================
+    Estilos para modais
+================================ */
+.modal-header-success {
+    background-color: var(--verde-principal);
+    color: white;
+    border-bottom: none;
+    border-radius: 0.3rem 0.3rem 0 0;
+}
+
+.modal-header-danger {
+    background-color: #dc3545;
+    color: white;
+    border-bottom: none;
+    border-radius: 0.3rem 0.3rem 0 0;
+}
+
+/* ===============================
+    Estilos para tooltips
+================================ */
+.tooltip-inner {
+    max-width: 300px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* ===============================
+    Estilos para paginação
+================================ */
+.page-item.active .page-link {
+    background-color: var(--verde-principal);
+    border-color: var(--verde-principal);
+}
+
+.page-link {
+    color: var(--verde-principal);
+}
+
+.page-link:hover {
+    color: var(--verde-escuro);
+}
+
+
+
+
+/* Estilos personalizados para o visual da tabela */
+    .btn-custom-add {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 16px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .btn-custom-add:hover {
+      background-color: #218838;
+      color: white;
+    }
+    .btn-custom-edit {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .btn-custom-edit:hover {
+      background-color: #0056b3;
+      color: white;
+    }
+    .btn-custom-delete {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .btn-custom-delete:hover {
+      background-color: #c82333;
+      color: white;
+    }
+    .card-custom {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .table-responsive {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+    }
+    .table-hover tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #f2f2f2;
+    }
+    .table thead {
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+<?php
+# ========================================
+# Model de Usuário
+# Local: /app/models/Usuario.php
+# ========================================
+
+class Usuario
+{
+    private $pdo;
+
+    // Construtor recebe a conexão com o banco de dados
+    public function __construct($pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
+    // Lista todos os usuários com nome do papel
+    public function listarTodos()
+    {
+        $sql = "SELECT u.*, p.usuariopapel_nome
+                FROM usuarios u
+                JOIN usuariopapeis p ON u.papel_id = p.usuariopapel_id
+                ORDER BY u.usuario_nome ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    // Busca um usuário específico pelo ID
+    public function buscarPorId($id)
+    {
+        $sql = "SELECT * FROM usuarios WHERE usuario_id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+
+        return $stmt->fetch();
+    }
+
+    // Insere um novo usuário
+    public function inserir($dados)
+    {
+        $sql = "INSERT INTO usuarios (usuario_nome, usuario_email, usuario_login, usuario_senha, papel_id)
+                VALUES (:nome, :email, :login, :senha, :papel_id)";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        return $stmt->execute([
+            ':nome'     => $dados['usuario_nome'],
+            ':email'    => $dados['usuario_email'],
+            ':login'    => strtolower($dados['usuario_login']), // login sempre em minúsculas
+            ':senha'    => password_hash($dados['usuario_senha'], PASSWORD_DEFAULT),
+            ':papel_id' => $dados['papel_id']
+        ]);
+    }
+
+    // Atualiza os dados de um usuário existente
+    public function atualizar($id, $dados)
+    {
+        $sql = "UPDATE usuarios
+                SET usuario_nome = :nome,
+                    usuario_email = :email,
+                    usuario_login = :login,
+                    papel_id = :papel_id";
+
+        // Se a senha for informada, atualiza também
+        if (!empty($dados['usuario_senha'])) {
+            $sql .= ", usuario_senha = :senha";
+        }
+
+        $sql .= " WHERE usuario_id = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $params = [
+            ':nome'     => $dados['usuario_nome'],
+            ':email'    => $dados['usuario_email'],
+            ':login'    => strtolower($dados['usuario_login']),
+            ':papel_id' => $dados['papel_id'],
+            ':id'       => $id
+        ];
+
+        if (!empty($dados['usuario_senha'])) {
+            $params[':senha'] = password_hash($dados['usuario_senha'], PASSWORD_DEFAULT);
+        }
+
+        return $stmt->execute($params);
+    }
+
+    // Exclui um usuário
+    public function excluir($id)
+    {
+        $sql = "DELETE FROM usuarios WHERE usuario_id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$id]);
+    }
+
+    // Lista os papéis disponíveis (níveis de acesso)
+    public function listarPapeis()
+    {
+        $sql = "SELECT usuariopapel_id, usuariopapel_nome FROM usuariopapeis ORDER BY usuariopapel_nome";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+}
+?>
+
+<?php
+# ========================================
+# Controlador de Usuários (CRUD Completo)
+# Local: /app/controllers/usuario_controller.php
+# ========================================
+
+// Ativar exibição de erros para desenvolvimento
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Iniciar sessão e verificar autenticação
+session_start();
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /iga/app/views/login.php');
+    exit;
+}
+
+// VERIFICAÇÃO DE PERMISSÃO - IMPLEMENTAÇÃO NOVA
+$acao = $_REQUEST['acao'] ?? 'listar';
+$acoesRestritas = ['listar', 'editar', 'salvar', 'excluir', 'criar'];
+
+if (in_array($acao, $acoesRestritas) && $_SESSION['usuario_papel'] !== 'Administrador') {
+    $_SESSION['erro_acesso'] = "Acesso restrito a administradores do sistema.";
+    header('Location: /iga/app/controllers/acesso_negado.php');
+    exit;
+}
+
+require_once __DIR__ . '/../../config/conexao.php';
+
+// Determinar a ação com base no parâmetro 'acao'
+switch ($acao) {
+    case 'listar':
+        try {
+            // Consulta para listar usuários com seus papéis
+            $sql = "SELECT u.*, p.usuariopapel_nome 
+                    FROM usuarios u
+                    JOIN usuariopapeis p ON u.papel_id = p.usuariopapel_id
+                    ORDER BY u.usuario_nome ASC";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Buscar papéis para uso geral
+            $sqlPapeis = "SELECT * FROM usuariopapeis ORDER BY usuariopapel_nome";
+            $stmtPapeis = $pdo->query($sqlPapeis);
+            $papeis = $stmtPapeis->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Verificar mensagens de sessão
+            $sucesso = $_SESSION['sucesso_salvar'] ?? $_SESSION['sucesso_excluir'] ?? '';
+            $erro = $_SESSION['erro_salvar'] ?? $_SESSION['erro_excluir'] ?? '';
+            
+            // Limpar mensagens da sessão
+            unset($_SESSION['sucesso_salvar'], $_SESSION['sucesso_excluir']);
+            unset($_SESSION['erro_salvar'], $_SESSION['erro_excluir']);
+            
+            // Incluir a view de listagem
+            require_once __DIR__ . '/../views/usuarios/index.php';
+            
+        } catch (PDOException $e) {
+            // Log do erro
+            error_log("Erro ao listar usuários: " . $e->getMessage());
+            
+            // Mensagem amigável para o usuário
+            echo "<h3>Erro ao carregar lista de usuários</h3>";
+            echo "<p>Por favor, tente novamente mais tarde.</p>";
+            echo "<p><a href='/iga/app/views/dashboard.php'>Voltar ao Dashboard</a></p>";
+        }
+        break;
+        
+    case 'editar':
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            $_SESSION['erro_salvar'] = "ID do usuário não fornecido.";
+            header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+            exit;
+        }
+
+        try {
+            $sql = "SELECT * FROM usuarios WHERE usuario_id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Busca os papéis de usuário para o dropdown
+            $sql_papeis = "SELECT * FROM usuariopapeis";
+            $stmt_papeis = $pdo->query($sql_papeis);
+            $papeis = $stmt_papeis->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($usuario) {
+                require_once __DIR__ . '/../views/usuarios/edit.php';
+            } else {
+                $_SESSION['erro_salvar'] = "Usuário não encontrado.";
+                header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+                exit;
+            }
+        } catch (PDOException $e) {
+            $_SESSION['erro_salvar'] = "Erro ao carregar dados do usuário: " . $e->getMessage();
+            header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+            exit;
+        }
+        break;
+
+    case 'salvar':
+        // Verificar se é uma requisição POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $_SESSION['erro_salvar'] = "Método de requisição inválido.";
+            header('Location: /iga/app/views/usuarios/create.php');
+            exit;
+        }
+
+        // Verificar se é edição (tem usuario_id) ou novo cadastro
+        $id = $_POST['usuario_id'] ?? null;
+        
+        if ($id) {
+            // É uma EDIÇÃO
+            $nome = trim($_POST['usuario_nome']);
+            $email = filter_var(trim($_POST['usuario_email']), FILTER_VALIDATE_EMAIL);
+            $login = trim($_POST['usuario_login']);
+            $papel_id = (int)$_POST['papel_id'];
+            $senha = $_POST['usuario_senha'] ?? '';
+
+            if (!$email) {
+                $_SESSION['erro_salvar'] = "Por favor, informe um e-mail válido.";
+                header("Location: /iga/app/controllers/usuario_controller.php?acao=editar&id=$id");
+                exit;
+            }
+
+            try {
+                // Verificar se e-mail já existe (excluindo o próprio usuário)
+                $sqlVerificaEmail = "SELECT COUNT(*) FROM usuarios WHERE usuario_email = ? AND usuario_id != ?";
+                $stmtVerificaEmail = $pdo->prepare($sqlVerificaEmail);
+                $stmtVerificaEmail->execute([$email, $id]);
+                
+                if ($stmtVerificaEmail->fetchColumn() > 0) {
+                    $_SESSION['erro_salvar'] = "Este e-mail já está cadastrado.";
+                    header("Location: /iga/app/controllers/usuario_controller.php?acao=editar&id=$id");
+                    exit;
+                }
+
+                // Verificar se login já existe (excluindo o próprio usuário)
+                $sqlVerificaLogin = "SELECT COUNT(*) FROM usuarios WHERE usuario_login = ? AND usuario_id != ?";
+                $stmtVerificaLogin = $pdo->prepare($sqlVerificaLogin);
+                $stmtVerificaLogin->execute([$login, $id]);
+                
+                if ($stmtVerificaLogin->fetchColumn() > 0) {
+                    $_SESSION['erro_salvar'] = "Este login já está em uso.";
+                    header("Location: /iga/app/controllers/usuario_controller.php?acao=editar&id=$id");
+                    exit;
+                }
+
+                // Construir query de atualização
+                $sqlUpdate = "UPDATE usuarios SET 
+                             usuario_nome = ?, 
+                             usuario_email = ?, 
+                             usuario_login = ?, 
+                             papel_id = ?";
+                
+                $params = [$nome, $email, $login, $papel_id];
+
+                // Se senha foi informada, adicionar ao update
+                if (!empty($senha)) {
+                    $sqlUpdate .= ", usuario_senha = ?";
+                    $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+                    $params[] = $senhaHash;
+                }
+
+                $sqlUpdate .= " WHERE usuario_id = ?";
+                $params[] = $id;
+
+                $stmtUpdate = $pdo->prepare($sqlUpdate);
+                $stmtUpdate->execute($params);
+
+                if ($stmtUpdate->rowCount() > 0) {
+                    $_SESSION['sucesso_salvar'] = "Usuário atualizado com sucesso!";
+                } else {
+                    $_SESSION['erro_salvar'] = "Nenhuma alteração foi realizada.";
+                }
+                
+                header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+                exit;
+
+            } catch (PDOException $e) {
+                $_SESSION['erro_salvar'] = "Erro ao atualizar usuário: " . $e->getMessage();
+                header("Location: /iga/app/controllers/usuario_controller.php?acao=editar&id=$id");
+                exit;
+            }
+
+        } else {
+            // É um NOVO CADASTRO
+            // Validar campos obrigatórios
+            $camposObrigatorios = ['usuario_nome', 'usuario_email', 'usuario_login', 'usuario_senha', 'confirmar_senha', 'papel_id'];
+            foreach ($camposObrigatorios as $campo) {
+                if (empty($_POST[$campo])) {
+                    $_SESSION['erro_salvar'] = "Por favor, preencha todos os campos obrigatórios.";
+                    header('Location: /iga/app/views/usuarios/create.php');
+                    exit;
+                }
+            }
+
+            // Verificar se as senhas coincidem
+            if ($_POST['usuario_senha'] !== $_POST['confirmar_senha']) {
+                $_SESSION['erro_salvar'] = "As senhas não coincidem.";
+                header('Location: /iga/app/views/usuarios/create.php');
+                exit;
+            }
+
+            // Sanitizar e validar dados
+            $nome = trim($_POST['usuario_nome']);
+            $email = filter_var(trim($_POST['usuario_email']), FILTER_VALIDATE_EMAIL);
+            $login = trim($_POST['usuario_login']);
+            $senha = $_POST['usuario_senha'];
+            $papel_id = (int)$_POST['papel_id'];
+
+            if (!$email) {
+                $_SESSION['erro_salvar'] = "Por favor, informe um e-mail válido.";
+                header('Location: /iga/app/views/usuarios/create.php');
+                exit;
+            }
+
+            try {
+                // Verificar se e-mail já existe
+                $sqlVerificaEmail = "SELECT COUNT(*) FROM usuarios WHERE usuario_email = ?";
+                $stmtVerificaEmail = $pdo->prepare($sqlVerificaEmail);
+                $stmtVerificaEmail->execute([$email]);
+                
+                if ($stmtVerificaEmail->fetchColumn() > 0) {
+                    $_SESSION['erro_salvar'] = "Este e-mail já está cadastrado.";
+                    header('Location: /iga/app/views/usuarios/create.php');
+                    exit;
+                }
+
+                // Verificar se login já existe
+                $sqlVerificaLogin = "SELECT COUNT(*) FROM usuarios WHERE usuario_login = ?";
+                $stmtVerificaLogin = $pdo->prepare($sqlVerificaLogin);
+                $stmtVerificaLogin->execute([$login]);
+                
+                if ($stmtVerificaLogin->fetchColumn() > 0) {
+                    $_SESSION['erro_salvar'] = "Este login já está em uso.";
+                    header('Location: /iga/app/views/usuarios/create.php');
+                    exit;
+                }
+
+                // Hash da senha
+                $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+                // Inserir novo usuário
+                $sqlInserir = "INSERT INTO usuarios 
+                              (usuario_nome, usuario_email, usuario_login, usuario_senha, papel_id, usuario_criadoem) 
+                              VALUES (?, ?, ?, ?, ?, NOW())";
+                
+                $stmtInserir = $pdo->prepare($sqlInserir);
+                $stmtInserir->execute([$nome, $email, $login, $senhaHash, $papel_id]);
+
+                // Verificar se inseriu corretamente
+                if ($stmtInserir->rowCount() > 0) {
+                    $_SESSION['sucesso_salvar'] = "Usuário cadastrado com sucesso!";
+                    header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+                    exit;
+                } else {
+                    $_SESSION['erro_salvar'] = "Erro ao cadastrar usuário. Nenhum registro foi inserido.";
+                    header('Location: /iga/app/views/usuarios/create.php');
+                    exit;
+                }
+
+            } catch (PDOException $e) {
+                $_SESSION['erro_salvar'] = "Erro no banco de dados: " . $e->getMessage();
+                header('Location: /iga/app/views/usuarios/create.php');
+                exit;
+            }
+        }
+        break;
+
+    case 'excluir':
+        $id = $_POST['usuario_id'] ?? null;
+        
+        if (!$id) {
+            $_SESSION['erro_excluir'] = "ID do usuário não fornecido.";
+            header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+            exit;
+        }
+
+        // Não permitir que o usuário exclua a si mesmo
+        if ($id == $_SESSION['usuario_id']) {
+            $_SESSION['erro_excluir'] = "Você não pode excluir seu próprio usuário.";
+            header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+            exit;
+        }
+
+        try {
+            // Usar transação para garantir integridade
+            $pdo->beginTransaction();
+            
+            // Primeiro verificar if o usuário existe
+            $sqlVerifica = "SELECT usuario_id FROM usuarios WHERE usuario_id = ?";
+            $stmtVerifica = $pdo->prepare($sqlVerifica);
+            $stmtVerifica->execute([$id]);
+            
+            if ($stmtVerifica->rowCount() === 0) {
+                $_SESSION['erro_excluir'] = "Usuário não encontrado.";
+                $pdo->rollBack();
+                header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+                exit;
+            }
+            
+            // Excluir o usuário
+            $sql = "DELETE FROM usuarios WHERE usuario_id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$id]);
+            
+            $pdo->commit();
+            
+            $_SESSION['sucesso_excluir'] = "Usuário excluído com sucesso!";
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            $_SESSION['erro_excluir'] = "Erro ao excluir usuário: " . $e->getMessage();
+        }
+        
+        header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+        exit;
+        
+    default:
+        header('Location: /iga/app/controllers/usuario_controller.php?acao=listar');
+        break;
+}
+?>
