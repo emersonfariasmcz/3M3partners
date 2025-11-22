@@ -1,0 +1,664 @@
+/*
+ * ========================================
+ * Estilos da AplicaçÃ£o - VersÃ£o Completa
+ * Local: /assets/css/style.css
+ * ========================================
+ */
+
+/* =====================================
+    Paleta de Cores e VariÃ¡veis Globais
+====================================== */
+:root {
+  /* === NOVA PALETA DE CORES (AZUL) === */
+  --azul-principal: #0073EC; /* Azul Vibrante - para aÃ§Ãµes principais */
+  --azul-escuro: #020A17;   /* Azul Marinho Escuro - para textos/headers */
+  --azul-claro: #051326;    /* Azul Escuro - para backgrounds/contrastes leves */
+  --cinza-claro: #cbd9d3;   /* Mantido o cinza claro para elementos secundÃ¡rios */
+  --branco: #ffffff;        /* Branco - fundo principal */
+  /* =================================== */
+}
+
+/* ===============================
+    Estilos Globais e PadrÃµes
+================================ */
+body {
+  background-color: var(--branco);
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.btn-primary {
+  background-color: var(--azul-principal); /* Usando azul principal */
+  color: var(--branco);
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--azul-escuro); /* Usando azul escuro */
+}
+
+.btn-outline-primary {
+  color: var(--azul-principal); /* Usando azul principal */
+  background-color: transparent;
+  border: 1px solid var(--azul-principal); /* Usando azul principal */
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--azul-principal); /* Usando azul principal */
+  color: var(--branco);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--cinza-claro); /* Usando cinza claro */
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  background-color: transparent;
+  padding: 10px;
+}
+
+.input-group button {
+    border: none;
+    background-color: transparent;
+    padding: 10px;
+    color: var(--azul-principal); /* Usando azul principal */
+}
+
+/* ===============================
+    Estilos para a tela de login - login.php
+================================ */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.login-card {
+  background-color: var(--branco);
+  border: 1px solid var(--cinza-claro); /* Usando cinza claro */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 40px 30px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-logo {
+  width: 180px;
+  height: auto;
+}
+
+.login-title {
+  color: var(--azul-principal); /* Usando azul principal */
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  font-size: 14px;
+  color: #333;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.recovery-link {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.recovery-link a {
+  font-size: 13px;
+  color: var(--azul-principal); /* Usando azul principal */
+  text-decoration: none;
+}
+
+.recovery-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+    Estilos para a tela de recuperaÃ§Ã£o
+================================ */
+.recover-form {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 40px;
+  background-color: var(--branco);
+  border: 1px solid var(--cinza-claro); /* Usando cinza claro */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.recover-form h2 {
+  color: var(--azul-principal); /* Usando azul principal */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.recover-form label {
+  font-size: 14px;
+  color: #333;
+  margin-top: 10px;
+  display: block;
+}
+
+.recover-form input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--cinza-claro); /* Usando cinza claro */
+  border-radius: 6px;
+  margin-top: 5px;
+}
+
+.recover-form button {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.recover-form p {
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ===============================
+    Estilos para Dashboard - dashboard.php
+================================ */
+.navbar {
+  background-color: var(--branco);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.navbar .nav-link {
+  color: #333;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: var(--azul-principal); /* Usando azul principal */
+}
+
+.dropdown-menu {
+  border-radius: 8px;
+  border: 1px solid var(--cinza-claro); /* Usando cinza claro */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item:hover {
+  background-color: var(--azul-claro); /* Usando azul claro */
+  color: white;
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card .card-title {
+  font-weight: bold;
+}
+
+.card .card-body {
+  padding: 20px;
+}
+
+.card-header {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+/* ===============================
+    Estilos para CRUD de UsuÃ¡rios
+================================ */
+.btn-custom-back {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-back:hover {
+  background-color: #5a6268;
+  color: white;
+}
+
+.btn-custom-add {
+  background-color: var(--azul-principal); /* Usando azul principal */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-add:hover {
+  background-color: var(--azul-escuro); /* Usando azul escuro */
+  color: white;
+}
+
+.btn-custom-edit {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-edit:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.btn-custom-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-delete:hover {
+  background-color: #c82333;
+  color: white;
+}
+
+.card-custom {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.table-responsive {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f2f2f2;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* TÃ­tulo da Tabela com fundo azul */
+.table-title-bar th {
+  background-color: var(--azul-principal); /* Usando azul principal */
+  color: var(--branco);
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 8px 8px 0 0;
+}
+
+.total-users {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  padding-left: 10px;
+}
+
+/* ===============================
+    Estilos de FormulÃ¡rio (Geral)
+================================ */
+.form-control:focus {
+  border-color: var(--azul-principal); /* Usando azul principal */
+  box-shadow: 0 0 0 0.25rem rgba(0, 115, 236, 0.25); /* Azul #0073EC com opacidade */
+}
+
+/* ===============================
+    Estilos para o CRUD de UsuÃ¡rios (Novos)
+================================ */
+
+/* Cards de formulÃ¡rio */
+.card-form {
+    border-radius: 8px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.card-form .card-header {
+    border-radius: 8px 8px 0 0 !important;
+    font-weight: 600;
+    padding: 1.25rem 1.5rem;
+    background-color: var(--azul-principal); /* Usando azul principal */
+    color: white;
+}
+
+/* BotÃµes com Ã­cones */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon i {
+    margin-right: 0.5rem;
+}
+
+/* ValidaÃ§Ã£o de formulÃ¡rio */
+.was-validated .form-control:valid,
+.form-control.is-valid {
+    border-color: #28a745;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Toggle de senha */
+.input-group-text.toggle-password {
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border-left: none;
+    transition: background-color 0.2s;
+}
+
+.input-group-text.toggle-password:hover {
+    background-color: #e9ecef;
+}
+
+/* Mensagens de alerta */
+.alert-position {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    min-width: 350px;
+}
+
+/* Cards de confirmaÃ§Ã£o */
+.confirmation-card {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.confirmation-card .card-header {
+    background-color: var(--azul-principal); /* Usando azul principal */
+}
+
+.confirmation-card .card-body {
+    padding: 2rem;
+}
+
+.confirmation-card .card-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+/* ===============================
+    Responsividade (Mobile)
+================================ */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 30px 20px;
+        margin: 0 15px;
+    }
+
+    .recover-form {
+        margin: 40px 10px;
+        padding: 30px;
+    }
+
+    .card-form {
+        border-radius: 0;
+        box-shadow: none;
+        margin-bottom: 0;
+    }
+
+    .card-form .card-header {
+        border-radius: 0 !important;
+    }
+
+    .confirmation-card {
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .table-responsive {
+        border: none;
+    }
+
+    /* Ajustes para botÃµes em dispositivos mÃ³veis */
+    .btn-custom-back,
+    .btn-custom-add {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+/* ===============================
+    AnimaÃ§Ãµes e TransiÃ§Ãµes
+================================ */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* ===============================
+    UtilitÃ¡rios
+================================ */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.rounded-top-0 {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.min-h-100 {
+    min-height: 100vh;
+}
+
+/* ===============================
+    Estilos para Ã­cones
+================================ */
+.icon-lg {
+    font-size: 1.5rem;
+}
+
+.icon-xl {
+    font-size: 2rem;
+}
+
+.icon-xxl {
+    font-size: 3rem;
+}
+
+.text-success-light {
+    color: var(--azul-claro); /* Usando azul claro */
+}
+
+.bg-success-light {
+    background-color: var(--azul-claro); /* Usando azul claro */
+}
+
+/* ===============================
+    Estilos para tabelas avanÃ§adas
+================================ */
+.table-actions {
+    width: 120px;
+    text-align: center;
+}
+
+.table-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* ===============================
+    Estilos para modais
+================================ */
+.modal-header-success {
+    background-color: var(--azul-principal); /* Usando azul principal */
+    color: white;
+    border-bottom: none;
+    border-radius: 0.3rem 0.3rem 0 0;
+}
+
+.modal-header-danger {
+    background-color: #dc3545;
+    color: white;
+    border-bottom: none;
+    border-radius: 0.3rem 0.3rem 0 0;
+}
+
+/* ===============================
+    Estilos para tooltips
+================================ */
+.tooltip-inner {
+    max-width: 300px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* ===============================
+    Estilos para paginaÃ§Ã£o
+================================ */
+.page-item.active .page-link {
+    background-color: var(--azul-principal); /* Usando azul principal */
+    border-color: var(--azul-principal); /* Usando azul principal */
+}
+
+.page-link {
+    color: var(--azul-principal); /* Usando azul principal */
+}
+
+.page-link:hover {
+    color: var(--azul-escuro); /* Usando azul escuro */
+}
+
+/* ===============================
+    Estilos personalizados para o visual da tabela
+================================ */
+.btn-custom-add {
+  background-color: var(--azul-principal); /* Usando azul principal */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-add:hover {
+  background-color: var(--azul-escuro); /* Usando azul escuro */
+  color: white;
+}
+.btn-custom-edit {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-edit:hover {
+  background-color: #0056b3;
+  color: white;
+}
+.btn-custom-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-delete:hover {
+  background-color: #c82333;
+  color: white;
+}
+.card-custom {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+.table-responsive {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f2f2f2;
+}
+.table thead {
+  background-color: #f8f9fa;
+  color: #333;
+}

@@ -1,0 +1,332 @@
+/*
+ * ========================================
+ * Estilos da Aplicação
+ * Local: /assets/css/style.css
+ * ========================================
+ */
+
+/* =====================================
+    Paleta de Cores e Variáveis Globais
+====================================== */
+:root {
+  --verde-principal: #0b9960;
+  --verde-escuro: #073725;
+  --verde-claro: #6cd4ac;
+  --cinza: #cbd9d3;
+  --branco: #ffffff;
+}
+
+/* ===============================
+    Estilos Globais e Padrões
+================================ */
+body {
+  background-color: var(--branco);
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.btn-primary {
+  background-color: var(--verde-principal);
+  color: var(--branco);
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--verde-escuro);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--cinza);
+  border-radius: 6px;
+  padding: 8px;
+  background-color: #f9f9f9;
+}
+
+.input-group i {
+  margin-right: 8px;
+  color: #888;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  background-color: transparent;
+}
+
+/* ===============================
+    Estilos para a tela de login - login.php
+================================ */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-card {
+  background-color: var(--branco);
+  border: 1px solid var(--cinza);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 40px 30px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-logo {
+  width: 180px;
+  height: auto;
+}
+
+.login-title {
+  color: var(--verde-principal);
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  font-size: 14px;
+  color: #333;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.recovery-link {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.recovery-link a {
+  font-size: 13px;
+  color: var(--verde-principal);
+  text-decoration: none;
+}
+
+.recovery-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===============================
+    Estilos para a tela de recuperação
+================================ */
+.recover-form {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 40px;
+  background-color: var(--branco);
+  border: 1px solid var(--cinza);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.recover-form h2 {
+  color: var(--verde-principal);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.recover-form label {
+  font-size: 14px;
+  color: #333;
+  margin-top: 10px;
+  display: block;
+}
+
+.recover-form input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--cinza);
+  border-radius: 6px;
+  margin-top: 5px;
+}
+
+.recover-form button {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.recover-form p {
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ===============================
+    Estilos para Dashboard - dashboard.php
+================================ */
+.navbar {
+  background-color: var(--branco);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.navbar .nav-link {
+  color: #333;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: var(--verde-principal);
+}
+
+.dropdown-menu {
+  border-radius: 8px;
+  border: 1px solid var(--cinza);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item:hover {
+  background-color: var(--verde-claro);
+  color: white;
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card .card-title {
+  font-weight: bold;
+}
+
+.card .card-body {
+  padding: 20px;
+}
+
+.card-header {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+/* ===============================
+    Estilos para CRUD de Usuários
+================================ */
+.btn-custom-add {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-add:hover {
+  background-color: #218838;
+  color: white;
+}
+
+.btn-custom-edit {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-edit:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.btn-custom-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-custom-delete:hover {
+  background-color: #c82333;
+  color: white;
+}
+
+.card-custom {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.table-responsive {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f2f2f2;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* Novos estilos para o visual da tabela de usuários */
+.card-header-custom {
+  background-color: var(--verde-principal);
+  color: var(--branco);
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 8px 8px 0 0; /* Apenas os cantos superiores arredondados */
+}
+
+.total-users {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  padding-left: 10px;
+}
+
+/* ===============================
+    Estilos de Formulário (Geral)
+================================ */
+.form-control:focus {
+  border-color: var(--verde-principal);
+  box-shadow: 0 0 0 0.25rem rgba(0, 135, 68, 0.25);
+}
+
+/* ===============================
+    Responsividade (Mobile)
+================================ */
+@media (max-width: 768px) {
+  .login-card {
+    padding: 30px 20px;
+  }
+
+  .recover-form {
+    margin: 40px 10px;
+    padding: 30px;
+  }
+}
