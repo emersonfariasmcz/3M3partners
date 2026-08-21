@@ -201,14 +201,11 @@ erDiagram
 
 ---
 
-## 👨‍💻 Contratar / Contato
+## 👨‍💻 Contato
 
 Gostou do projeto? Sou especializado em **Engenharia de Software, Arquitetura de Sistemas Web e Engenharia de Prompts**.
 
-- 💼 **LinkedIn**: [Seu LinkedIn](https://linkedin.com/in/seu-perfil)
-- ✉️ **E-mail**: seu-email@dominio.com
-- 🌐 **Portfólio**: [Seu Site / Portfólio](https://seu-portfolio.com)
+- 💼 **LinkedIn**: (https://br.linkedin.com/in/emersonfariasbr)
+- 💻 **GitHub**: ((https://github.com/emersonfariasmcz/)
+- 🌐 **Site/Portfólio**: (https://www.emersonfarias.com.br)
 
----
-
-*Desenvolvido com excelência técnica em Engenharia de Software.*
