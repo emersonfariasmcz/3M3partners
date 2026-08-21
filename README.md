@@ -168,4 +168,5 @@ Gostou do projeto? Sou especializado em **Engenharia de Software, Arquitetura de
 - 💼 **LinkedIn**: https://br.linkedin.com/in/emersonfariasbr
 - 💻 **GitHub**: https://github.com/emersonfariasmcz/
 - 🌐 **Site/Portfólio**: https://www.emersonfarias.com.br
+- 💻 **GitHub**: <a href="https://github.com/emersonfariasmcz/" target="_blank" rel="noopener noreferrer">https://github.com/emersonfariasmcz/</a>
 
