@@ -1,4 +1,4 @@
-# 🚀 3M3 ERP Modernization - Sistema de Gestão de Estoque & Distribuição
+# 🚀 3M3 Partners ERP - Sistema de Gestão de Estoque & Distribuição
 
 [![PHP](https://img.shields.io/badge/PHP-7.4%20%2F%208.x-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
