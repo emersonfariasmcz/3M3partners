@@ -165,6 +165,9 @@ erDiagram
 
 Gostou do projeto? Sou especializado em **Engenharia de Software, Arquitetura de Sistemas Web e Engenharia de Prompts**.
 
-- 💼 **LinkedIn**: https://br.linkedin.com/in/emersonfariasbr
-- 🌐 **Site/Portfólio**: https://www.emersonfarias.com.br
-- 💻 **GitHub**: https://github.com/emersonfariasmcz
+- 💼 **LinkedIn**: [linkedin.com/in/emersonfariasbr](https://www.linkedin.com/in/emersonfariasbr)  
+- 🌐 **Site/Portfólio**: [emersonfarias.com.br](https://www.emersonfarias.com.br)  
+- 💻 **GitHub**: [@emersonfariasmcz](https://github.com/emersonfariasmcz)  
+- 📸 **Instagram**: [@emersonfarias.dev](https://www.instagram.com/emersonfarias.dev)
+- 🎥 **YouTube**: [@emersonfariasdev](https://www.youtube.com/@emersonfariasdev)  
+
