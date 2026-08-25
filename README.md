@@ -25,7 +25,7 @@
 - [Modelagem do Banco de Dados](#-modelagem-do-banco-de-dados)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [Estrutura do Repositório](#-estrutura-do-repositório)
-- [Contato & Autor](#-contato--autor)
+- [Contato](#-contato--autor)
 
 ---
 
