@@ -14,7 +14,7 @@
 
 | Dashboard Executivo em Tempo Real | Menu & Interface Premium |
 | :---: | :---: |
-| ![Dashboard](PRINT%20DASHBOARD%20FUNCIONANDO%20PERFEITAMENTE.png) | ![Menu](MENU.png) |
+| ![EM BREVE](PRINT%20DASHBOARD%20FUNCIONANDO%20PERFEITAMENTE.png) | ![EM BREVE](MENU.png) |
 
 ---
 
